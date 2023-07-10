@@ -45,36 +45,26 @@ UserSharedPostRouter.get("/shared-post", async (req, res) => {
   }
 });
 
-UserSharedPostRouter.get("/shared-post/:postId/view", async (req, res) => {
-  const { postId } = req.params;
+UserSharedPostRouter.get("/blog/:Userjwt/:postId", async (req, res) => {
+  const { Userjwt, postId } = req.params;
 
   try {
-    const sharedPosts = await Users.find({ "SharedPosts.Postid": postId });
+    const user = await Users.findById(Userjwt);
 
-    if (!sharedPosts) {
+    if (!user) {
+      return res.status(404).json({ message: "User not found!" });
+    }
+
+    const post = user.SharedPosts.find((post) => post.Postid === postId);
+
+    if (!post) {
       return res.status(404).json({ message: "Post not found!" });
     }
 
-    let updatedPost = null;
+    post.Views++;
+    await user.save();
 
-    sharedPosts.forEach((user) => {
-      const postIndex = user.SharedPosts.findIndex(
-        (post) => post.Postid === postId
-      );
-
-      if (postIndex !== -1) {
-        user.SharedPosts[postIndex].Views += 1;
-        updatedPost = user.SharedPosts[postIndex];
-      }
-    });
-
-    if (!updatedPost) {
-      return res.status(404).json({ message: "Post not found!" });
-    }
-
-    await Promise.all(sharedPosts.map((user) => user.save()));
-
-    return res.status(200).json(updatedPost);
+    return res.status(200).json(post);
   } catch (error) {
     return res.status(500).json(error);
   }
