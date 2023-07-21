@@ -3,8 +3,7 @@ const app = express();
 const Port = 5000;
 const mongoose = require("mongoose");
 const cors = require("cors");
-const { User, UserSharedPostRouter } = require("./routes/index");
-
+const { User, UserSharedPostRouter, UserDashBoard } = require("./routes/index");
 // Using JSON data to communicate with server
 app.use(express.json());
 // connect to db
@@ -26,7 +25,8 @@ app.use(cors(corsOptions));
 app.use("/", User);
 // user liked posts
 app.use("/", UserSharedPostRouter);
-
+// user dashboard
+app.use("/", UserDashBoard);
 // server started
 app.listen(Port, () => {
   console.log(`Server listening on ${Port}`);

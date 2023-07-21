@@ -1,4 +1,4 @@
 const User = require("./Users");
 const UserSharedPostRouter = require("./UserSharedPostRouter");
-
-module.exports = { User, UserSharedPostRouter };
+const UserDashBoard = require("./UserDashBoard");
+module.exports = { User, UserSharedPostRouter, UserDashBoard };

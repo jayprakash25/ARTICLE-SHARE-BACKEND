@@ -17,15 +17,35 @@ UserSharedPostRouter.put("/shared-post", async (req, res) => {
       return res.json({ message: "Userjwt not found!" });
     }
 
-    const inertSharedPost = await Users.findOneAndUpdate(
-      { _id: Userjwt },
-      {
-        $push: { SharedPosts: Post },
-      },
-      { new: true }
-    );
-    console.log("SAVED");
-    return res.status(200).json(inertSharedPost);
+    const savePost = async () => {
+      await Users.findOneAndUpdate(
+        { _id: Userjwt },
+        {
+          $push: { SharedPosts: Post },
+        },
+        { new: true }
+      );
+      console.log("Shared Post Saved");
+    };
+
+    const postExist = Users.findById(Userjwt).then((user) => {
+      user.SharedPosts.map((post) => {
+        if (post.Postid === Postid) {
+          console.log("Post already exists:(");
+          return true;
+        } else {
+          return false;
+        }
+      });
+    });
+
+    Users.findById(Userjwt).then((user) => {
+      if (user.SharedPosts.length === 0 || !postExist) {
+        savePost();
+      }
+    });
+
+    // return res.status(200).json(inertSharedPost);
   } catch (error) {
     return res.status(500).json(error);
   }
@@ -61,7 +81,7 @@ UserSharedPostRouter.get("/blog/:Userjwt/:postId", async (req, res) => {
       return res.status(404).json({ message: "Post not found!" });
     }
 
-    post.Views++;
+    post.Views = post.Views;
     await user.save();
 
     return res.status(200).json(post);
