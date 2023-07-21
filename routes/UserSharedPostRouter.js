@@ -28,24 +28,16 @@ UserSharedPostRouter.put("/shared-post", async (req, res) => {
       console.log("Shared Post Saved");
     };
 
-    const postExist = Users.findById(Userjwt).then((user) => {
-      user.SharedPosts.map((post) => {
-        if (post.Postid === Postid) {
-          console.log("Post already exists:(");
-          return true;
-        } else {
-          return false;
-        }
-      });
-    });
-
     Users.findById(Userjwt).then((user) => {
-      if (user.SharedPosts.length === 0 || !postExist) {
+      if (
+        user.SharedPosts.length > 0 &&
+        !user.SharedPosts.some((post) => post.Postid === Postid)
+      ) {
         savePost();
+      }else{
+        console.log("Post already exits")
       }
     });
-
-    // return res.status(200).json(inertSharedPost);
   } catch (error) {
     return res.status(500).json(error);
   }
